@@ -30,6 +30,7 @@ func main() {
 	}
 
 	raftAddr := fmt.Sprintf("localhost:%s", cfg.RaftPort)
+	fmt.Printf("[main] raft start at: %s", raftAddr)
 	ra, err := setupRaft(path.Join(dataDir, "raft-"+cfg.Id), cfg.Id, raftAddr, kf)
 	if err != nil {
 		log.Fatalf("[main] setupRaft err: %v", err)
@@ -40,11 +41,12 @@ func main() {
 	http.HandleFunc("/get", hs.GetHandler)
 	http.HandleFunc("/join", hs.JoinHandler)
 	httpAddr := fmt.Sprintf(":%s", cfg.HttpPort)
+	fmt.Printf("[main] http server start at: %v", httpAddr)
 	http.ListenAndServe(httpAddr, nil)
 }
 
 func setupRaft(dir, nodeId, raftAddress string, kf *kv.KvFsm) (*raft.Raft, error) {
-	store, err := raftboltdb.NewBoltStore(path.Join("bolt"))
+	store, err := raftboltdb.NewBoltStore(path.Join(dir, "bolt"))
 	if err != nil {
 		return nil, fmt.Errorf("[setupRaft] NewBoltStore err: %v", err)
 	}
